@@ -1,11 +1,15 @@
 import asyncio
 import sys
 
+import connection
+import login
+
 class Server:
 
     def __init__(self, config=None):
         if config:
             pass
+        self._login_handler = login.Login()    
 
     def bind_to(self, addr, port):
         self.addr = addr
@@ -25,11 +29,6 @@ class Server:
             sys.exit()
 
     async def _handle(self, reader, writer):
-        data = await reader.read(1024)
-        message = data.decode()
-        remote_addr = writer.get_extra_info('peername')
-        print(f'Received "{message!r}" from {remote_addr!r}')
-        response = b'ok'
-        writer.write(response)
-        await writer.drain()
-        writer.close()
+        conn = connection.ClientConnection(reader, writer)
+        player_session = await self._login_handler.login(conn)
+        return None
