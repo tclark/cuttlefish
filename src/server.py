@@ -1,17 +1,22 @@
 import asyncio
+from asyncio import StreamReader, StreamWriter
 import sys
 
 import connection
 import login
 
+class Config:
+    pass
+
+
 class Server:
 
-    def __init__(self, config=None):
+    def __init__(self, config: Config = None):
         if config:
             pass
         self._login_handler = login.Login()    
 
-    def bind_to(self, addr, port):
+    def bind_to(self, addr: str , port: int):
         self.addr = addr
         self.port = port
 
@@ -28,7 +33,7 @@ class Server:
         except KeyboardInterrupt:
             sys.exit()
 
-    async def _handle(self, reader, writer):
+    async def _handle(self, reader: StreamReader, writer: StreamWriter) -> None:
         conn = connection.ClientConnection(reader, writer)
         player_session = await self._login_handler.login(conn)
         return None
