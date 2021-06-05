@@ -1,16 +1,26 @@
 import asyncio
+import json
+from uuid import uuid4
+
 from connection import ClientConnection
 
 class PlayerSession:
     
     def __init__(self, uid: str, nick: str,  conn: ClientConnection):
+        self.session_id = uuid4()
         self.user_id = uid
         self.nickname = nick
         self.connection = conn
         self.client_addr = conn.client_addr
 
     def __repr__(self):
-        return f'PlayerSession({self.user_id}, {self.nickname}, {self.client_addr})'
+        return f'PlayerSession({self.session_id}, {self.user_id}, {self.nickname}, {self.client_addr})'
+
+    def to_json(self):
+        return json.dumps({'session_id': str(self.session_id),
+            'user_id': self.user_id,
+            'nickname': self.nickname,
+            'client_addr': self.client_addr})
 
 class Login:
 

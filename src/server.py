@@ -41,5 +41,5 @@ class Server:
     async def _handle(self, reader: StreamReader, writer: StreamWriter) -> None:
         conn = connection.ClientConnection(reader, writer)
         player_session = await self.config.login_handler.login(conn)
-        print(player_session)
+        print(player_session.to_json())
         return None
