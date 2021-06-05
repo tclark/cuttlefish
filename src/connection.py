@@ -25,6 +25,7 @@ class ClientConnection:
     def __init__(self, rdr: StreamReader, wtr: StreamWriter):
         self._reader = rdr
         self._writer = wtr
+        self.client_addr = wtr.get_extra_info('peername')
 
     async def read(self) -> Message:
         headers = await self._read_headers()

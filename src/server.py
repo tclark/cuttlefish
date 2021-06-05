@@ -5,16 +5,21 @@ import sys
 import connection
 import login
 
-class Config:
-    pass
 
+class DefaultConfig:
+    login_handler = login.Login()
+
+
+class Config(DefaultConfig):
+    def __init__(self, ** kwargs):
+        super().__init__()
+        for k,v in kwargs.items():
+            super().__setattr__(k,v)
 
 class Server:
 
     def __init__(self, config: Config = None):
-        if config:
-            pass
-        self._login_handler = login.Login()    
+        self.config = config or DefaultConfig()
 
     def bind_to(self, addr: str , port: int):
         self.addr = addr
@@ -35,5 +40,6 @@ class Server:
 
     async def _handle(self, reader: StreamReader, writer: StreamWriter) -> None:
         conn = connection.ClientConnection(reader, writer)
-        player_session = await self._login_handler.login(conn)
+        player_session = await self.config.login_handler.login(conn)
+        print(player_session)
         return None
