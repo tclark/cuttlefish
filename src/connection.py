@@ -9,15 +9,23 @@ Message = namedtuple("Message", "headers body")
 class Headers:
 
     def __init__(self, 
+        content_length: int = 0,
         content_type: Optional[str] = None,
         content_encoding: Optional[str] = None,
-        content_length: int = 0,
         **kwargs):
         self.content_type = content_type
         self.content_length = content_length
         self.content_encoding = content_encoding
         for k,v in kwargs.items():
             super().__setattr__(k, v)
+
+    def to_bytes(self) -> bytes:
+        return str(self).encode('utf-8')
+
+    def __str__(self) -> str:
+        return json.dumps(self.__dict__)
+
+        
 
 
 class ClientConnection:
@@ -48,3 +56,15 @@ class ClientConnection:
         # always include the bytes
         body['raw'] = data
         return body
+
+    async def send(self, msg_body: dict) -> None:
+        body_str = json.dumps(msg_body)
+        body_byt = bytes(body_str.encode('utf-8'))
+        body_len = len(body_byt)
+        headers = Headers(content_length=body_len,
+            content_type = 'application/json',
+            content_encoding = 'utf-8')
+        headers_byt = headers.to_bytes()
+        message = headers_byt + b'\n\n' + body_byt
+        self._writer.write(message)
+
